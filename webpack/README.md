@@ -36,7 +36,7 @@
 
 - webpack的配置文件：默认是 `webpack.config.js`.
 
-1. [什么是chunk?](https://github.com/liaozhip/study-note/blob/master/chunk.md)
+1. [什么是chunk?](https://github.com/liaozhip/study-note/blob/main/webpack/chunk.md)
 2. [如何处理css：css-loader、style-loader、mini-css-extract-plugin](https://github.com/liaozhip/study-note/blob/main/webpack/loader/css-loader.md)
 3. [如何处理less：less-loader](https://github.com/liaozhip/study-note/blob/main/webpack/loader/less-loader.md)
 4. [如何处理sass：sass-loader](https://github.com/liaozhip/study-note/blob/main/webpack/loader/sass-loader.md)
