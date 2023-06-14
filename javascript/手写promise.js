@@ -1,51 +1,48 @@
 class Promise {
   constructor(executor) {
-    this.state = 'pending';
+    this.status = 'pendding';
     this.value = undefined;
     this.handlers = [];
 
     const resolve = value => {
-      if (this.state === 'pending') {
-        this.state = 'fulfilled';
+      if (this.status === 'pendding') {
+        this.status = 'fulfilled';
         this.value = value;
         this.handlers.forEach(handler => this.handle(handler));
         this.handlers = [];
       }
-    };
+    }
 
     const reject = reason => {
-      if (this.state === 'pending') {
-        this.state = 'rejected';
+      if (this.status === 'pendding') {
+        this.status = 'rejected';
         this.value = reason;
         this.handlers.forEach(handler => this.handle(handler));
         this.handlers = [];
       }
-    };
-
+    }
+    
     try {
       executor(resolve, reject);
     } catch (error) {
-      reject(error);
+      reject(error)
     }
   }
 
   then(onFulfilled, onRejected) {
-    // 返回一个promise以支持链式调用
+    // 返回一个 promise 保证链式调用
     return new Promise((resolve, reject) => {
-      // 创建一个handler对象用来解析then方法的回调函数和解析（或者拒绝）
       const handler = {
         onFulfilled,
         onRejected,
         resolve,
-        reject,
+        reject
       };
-
-      // 如果是pedding状态表示尚未完成，我们把它放到Promise的处理程序队列中：handlers数组
-      if (this.state === 'pending') {
+      // 如果状态还是 pendding 就把 handler 收集起来, 否则就调用 handle 直接执行
+      if (this.status === 'pendding') {
         this.handlers.push(handler);
       } else {
-        // 如果不是pedding状态则表示已经完成（成功或者失败），我们把它立即执行，确保Promise在已经完成的情况下仍然能触发回调
-        this.handle(handler);
+        this.handle(handler)
       }
     });
   }
@@ -55,45 +52,35 @@ class Promise {
   }
 
   handle(handler) {
-    // 如果Promise状态为已经完成
-    if (this.state === 'fulfilled') {
-      // 如果传递了 onFulfilled 函数就调用它并传入结果，然后再获取它的返回值返回到下一个then的链式调用
+    // 等待用户调用 resolve 或者 reject 执行 handle
+    if (this.status === 'fulfilled') {
+      // 如果是成功状态并且 onFulfilled 是一个函数, 就调用它并把值作为参数传递
       if (typeof handler.onFulfilled === 'function') {
         try {
-          const result = handler.onFulfilled(this.value)
+          // 如果有返回值，需要作为下一个 then 的 resolve 的结果
+          const result = handler.onFulfilled(this.value);
           handler.resolve(result);
         } catch (error) {
           handler.reject(error);
         }
       } else {
-        // 没有 onFulfilled 说明没有调用 then 函数
+        // 如果没有 onFulfilled 函数也要确保链式调用继续把结果返回给下一个 then 的 resolve 的结果
         handler.resolve(this.value);
       }
-    // 如果Promise状态为已失败
-    } else if (this.state === 'rejected') {
-      if (typeof onRejected === 'function') {
+    } else if (this.status === 'rejected') {
+      // 操作基本和成功的一致
+      if (typeof handler.onRejected === 'function') {
         try {
+          // 这里如果有返回值一样将返回值作为下一个 then 的 resolve 的结果
           const result = handler.onRejected(this.value);
-          // 这里表示上一个 promise 成功完成
           handler.resolve(result);
         } catch (error) {
           handler.reject(error);
         }
       } else {
+        // 如果没有 onRejected 函数也要确保链式调用继续把结果返回给下一个 then 的 reject 的结果
         handler.reject(this.value);
       }
     }
-  }
-
-  static resolve(value) {
-    return new Promise(resolve => {
-      resolve(value);
-    });
-  }
-
-  static reject(reason) {
-    return new Promise((resolve, reject) => {
-      reject(reason);
-    });
   }
 }
