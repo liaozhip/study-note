@@ -6,13 +6,13 @@ const insertSort = (arr) => {
   const newArr = [...arr];
   let temp = null;
   for (let i = 1; i < newArr.length; i++) {
-    for (let j = i; j > 0; j--) {
-      if (newArr[j - 1] > newArr[j]) {
-        temp = newArr[j - 1];
-        newArr[j - 1] = newArr[j];
-        newArr[j] = temp;
-      }
+    let j = i;
+    temp = newArr[j];
+    while(j > 0 && newArr[j - 1] > temp) {
+      newArr[j] = newArr[j - 1];
+      j--;
     }
+    newArr[j] = temp;
   }
   return newArr;
 }
